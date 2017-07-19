@@ -129,13 +129,49 @@ define(function (require, exports, module) {
       var cm = current_cell.code_mirror;
       var selection = cm.getSelection();
       var current_value;
-      if (selection.length !== 0) {
-        current_value = selection;
-      } else {
-        current_value = cm.getLine(cm.getCursor().line);
+
+      // set the scratch cell's value and open the pad
+      var set_value = (function(value) {
+        this.cell.code_mirror.setValue(value.trim());
+        this.expand();
+      }).bind(this);
+
+      // try to find the targeted expression.
+      // send current line to the kernel, if it's incomplete,
+      // add the previous line and repeat
+      // if the checked buffer is complete, set the scratch cell's value
+      var find_expression = function(kernel, start_line, finish_line) {
+        if (start_line < 0) {
+          // something went wrong (most likely no expression in the cell)
+          // just return
+          console.error('No expression found in cell');
+          return;
+        }
+        var potential_expression = '';
+        for (var line_number=start_line; line_number <= finish_line; ++line_number) {
+          potential_expression += cm.getLine(line_number) + '\n';
+        }
+        potential_expression = potential_expression.trim();
+        var check_if_complete = function(msg) {
+          var status = msg.content.status;
+          if (status === 'complete') {
+            set_value(potential_expression);
+          } else {
+            find_expression(kernel, start_line - 1, finish_line);
+          }
+        }
+        kernel.send_shell_message('is_complete_request',
+                                            // replace newline with spaces for the completeness checker
+                                            { code: potential_expression.split('\n').join(' ') },
+                                            { shell: { reply: check_if_complete } });
       }
-      this.cell.code_mirror.setValue(current_value);
-      this.expand();
+
+      if (selection.length !== 0) {
+        set_value(selection);
+      } else {
+        var current_line = cm.getCursor().line;
+        find_expression(this.cell.kernel, current_line, current_line);
+      }
     }
   }
 
