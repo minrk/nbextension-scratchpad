@@ -124,7 +124,7 @@ define(function (require, exports, module) {
   };
 
   Scratchpad.prototype.copy_current_line = function(evt) {
-    if (this.collapsed) {
+    if (!utils.is_focused(this.element)) {
       var current_cell = this.notebook.get_selected_cell();
       var cm = current_cell.code_mirror;
       var selection = cm.getSelection();
@@ -135,12 +135,12 @@ define(function (require, exports, module) {
         current_value = cm.getLine(cm.getCursor().line);
       }
       this.cell.code_mirror.setValue(current_value);
-      this.toggle();
+      this.expand();
     }
   }
 
   Scratchpad.prototype.execute_current_line = function(evt) {
-    if (this.collapsed) {
+    if (!utils.is_focused(this.element)) {
       this.copy_current_line(evt);
       this.cell.execute();
     }
