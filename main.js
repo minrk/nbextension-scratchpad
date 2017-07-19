@@ -51,10 +51,20 @@ define(function (require, exports, module) {
     var toggle_action = this.km.actions.register({
       handler: $.proxy(this.toggle, this),
     }, 'scratchpad-toggle');
-    
+    var execute_line_action = this.km.actions.register({
+      handler: $.proxy(this.execute_current_line, this),
+
+    }, 'scratchpad-execute-current-line');
+    var copy_line_action = this.km.actions.register({
+      handler: $.proxy(this.copy_current_line, this),
+
+    }, 'scratchpad-copy-current-line');
+
     var shortcuts = {
       'shift-enter': execute_and_select_action,
       'ctrl-enter': execute_action,
+      'ctrl-shift-enter': execute_line_action,
+      'ctrl-shift-alt-enter': copy_line_action,
       'ctrl-b': toggle_action,
     }
     this.km.edit_shortcuts.add_shortcuts(shortcuts);
@@ -112,6 +122,23 @@ define(function (require, exports, module) {
       this.notebook.execute_selected_cells();
     }
   };
+
+  Scratchpad.prototype.copy_current_line = function(evt) {
+    if (this.collapsed) {
+      var current_cell = this.notebook.get_selected_cell();
+      var cm = current_cell.code_mirror;
+      var current_line = cm.getLine(cm.getCursor().line);
+      this.cell.code_mirror.setValue(current_line);
+      this.toggle();
+    }
+  }
+
+  Scratchpad.prototype.execute_current_line = function(evt) {
+    if (this.collapsed) {
+      this.copy_current_line(evt);
+      this.cell.execute();
+    }
+  }
 
   function setup_scratchpad () {
     // lazy, hook it up to Jupyter.notebook as the handle on all the singletons
