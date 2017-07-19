@@ -127,8 +127,14 @@ define(function (require, exports, module) {
     if (this.collapsed) {
       var current_cell = this.notebook.get_selected_cell();
       var cm = current_cell.code_mirror;
-      var current_line = cm.getLine(cm.getCursor().line);
-      this.cell.code_mirror.setValue(current_line);
+      var selection = cm.getSelection();
+      var current_value;
+      if (selection.length !== 0) {
+        current_value = selection;
+      } else {
+        current_value = cm.getLine(cm.getCursor().line);
+      }
+      this.cell.code_mirror.setValue(current_value);
       this.toggle();
     }
   }
