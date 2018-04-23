@@ -50,7 +50,7 @@ define([
     cell.refresh();
     this.collapse();
 
-    // override ctrl/shift-enter to execute me if I'm focused instead of the notebook's cell
+    // override cmd/shift-enter to execute me if I'm focused instead of the notebook's cell
     var execute_and_select_action = this.km.actions.register({
       handler: $.proxy(this.execute_and_select_event, this),
     }, 'scratchpad-execute-and-select');
@@ -64,7 +64,7 @@ define([
     var shortcuts = {
       'shift-enter': execute_and_select_action,
       'ctrl-enter': execute_action,
-      'ctrl-b': toggle_action,
+      'cmd-b': toggle_action,
     }
     this.km.edit_shortcuts.add_shortcuts(shortcuts);
     this.km.command_shortcuts.add_shortcuts(shortcuts);
