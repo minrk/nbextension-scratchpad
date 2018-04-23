@@ -4,7 +4,7 @@ Adds a scratchpad cell to Jupyter notebook.
 This is a cell in which you can execute code against the current kernel without modifying the notebook document.
 
 The scratchpad can be toggled by clicking the icon in the bottom-right,
-or via the keyboard shortcut `Ctrl-B`.
+or via the keyboard shortcut `Cmd-B`.
 
 ![demo](demo.gif)
 
