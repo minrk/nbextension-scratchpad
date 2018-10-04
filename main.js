@@ -66,8 +66,15 @@ define([
       'ctrl-enter': execute_action,
       'ctrl-b': toggle_action,
     }
-    this.km.edit_shortcuts.add_shortcuts(shortcuts);
-    this.km.command_shortcuts.add_shortcuts(shortcuts);
+
+    // Workaround for a bug when using this extension together with jupyter-vim-binding.
+    // Whenever this extension loads before jupyter-vim-binding, the shortcuts get overwritten
+    // causing this extension to break. Therefore, wait 2 seconds to force jupyter-vim-binding
+    // to finish loading before we register our shortcuts.
+    setTimeout(function(){
+      scratchpad.km.edit_shortcuts.add_shortcuts(shortcuts);
+      scratchpad.km.command_shortcuts.add_shortcuts(shortcuts);
+    }, 2000);
 
     // finally, add me to the page
     $("body").append(this.element);
